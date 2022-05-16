@@ -13,6 +13,7 @@ namespace PasteBook.Data.Repositories
     {
         UserAccount SoftDelete(UserAccount userAccount);
         UserAccount CheckUserAccount(string userName, string passWord);
+        UserAccount FindByEmailAddress(string emailAddress);
     }
     public class UserAccountRepository : GenericRepository<UserAccount>, IUserAccountRepository
     {
@@ -45,6 +46,16 @@ namespace PasteBook.Data.Repositories
                 return true;
             }
             return false;
+        }
+
+        public UserAccount FindByEmailAddress(string emailAddress)
+        {
+            var userAccount = this.Context.UserAccounts.Where(x => x.EmailAddress == emailAddress).FirstOrDefault();
+            if (userAccount is object)
+            {
+                return userAccount;
+            }
+            throw new EntityNotFoundException($"Entity with Email Address: {emailAddress} does not exist.");
         }
     }
 }

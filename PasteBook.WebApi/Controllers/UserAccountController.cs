@@ -178,5 +178,52 @@ namespace PasteBook.WebApi.Controllers
             }
         }
 
+        // for testing only
+        [HttpGet("LoginUserAccount")]
+        public IActionResult LoginUserAccount(string emailAddress, string password)
+        {
+            try
+            {
+                var existingUserAccount = UnitOfWork.UserAccountRepository.FindByEmailAddress(emailAddress);
+
+                var passwordHasherOptions = new PasswordHasherOptions();
+                passwordHasherOptions.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV3;
+                passwordHasherOptions.IterationCount = 10_000;
+                var passwordHasher = new PasswordHasher<UserAccount>();
+
+                bool verified = false;
+                var verificationResult = passwordHasher.VerifyHashedPassword(existingUserAccount, existingUserAccount.Password, password);
+
+                if (verificationResult == PasswordVerificationResult.Success)
+                {
+                    verified = true;
+                }
+                if (verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
+                {
+                    verified = true;
+                }
+                if (verificationResult == PasswordVerificationResult.Failed)
+                {
+                    verified = false;
+                }
+                if (verified == true)
+                {
+                    return Ok(existingUserAccount);
+                }
+                if (verified == false)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden);
+                }
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+            catch (EntityNotFoundException)
+            {
+                return StatusCode(StatusCodes.Status404NotFound);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
     }
 }
