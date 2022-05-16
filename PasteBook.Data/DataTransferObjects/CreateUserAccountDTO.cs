@@ -18,10 +18,11 @@ namespace PasteBook.Data.DataTransferObjects
         [MaxLength(50, ErrorMessage = "Last name cannot not exceed 50 characters")]
         public string LastName { get; set; }
         [Required]
+        [DataType(DataType.EmailAddress)]
+        [EmailAddress]
         public string EmailAddress { get; set; }
         [Required]
-        [MinLength(1, ErrorMessage = "Password cannot be blank")]
-        [MaxLength(30, ErrorMessage = "Password cannot not exceed 30 characters")]
+        [DataType(DataType.Password)]
         public string Password { get; set; }
         [Required]
         public DateTime Birthday { get; set; }

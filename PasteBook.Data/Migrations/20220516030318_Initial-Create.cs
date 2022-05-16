@@ -15,7 +15,7 @@ namespace PasteBook.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Description = table.Column<string>(type: "nvarchar(Max)", nullable: true),
-                    CreationDate = table.Column<DateTime>(type: "datetime", nullable: false)
+                    CreationDate = table.Column<DateTime>(type: "datetime", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
                 {
@@ -32,12 +32,12 @@ namespace PasteBook.Data.Migrations
                     LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     EmailAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(50)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Password = table.Column<string>(type: "char(96)", maxLength: 30, nullable: false),
                     Birthday = table.Column<DateTime>(type: "datetime2(7)", nullable: false),
                     Gender = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     MobileNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Active = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false)
+                    CreatedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
                 {
@@ -51,7 +51,7 @@ namespace PasteBook.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     AlbumId = table.Column<int>(type: "int", nullable: false),
-                    UploadedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false),
+                    UploadedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     FilePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Active = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -74,7 +74,7 @@ namespace PasteBook.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     BlockerAccounttId = table.Column<int>(type: "int", nullable: false),
                     BlockedAccountId = table.Column<int>(type: "int", nullable: false),
-                    BlockedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false)
+                    BlockedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
                 {
@@ -95,7 +95,7 @@ namespace PasteBook.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RequestReceiverId = table.Column<int>(type: "int", nullable: false),
                     RequestSenderId = table.Column<int>(type: "int", nullable: false),
-                    RequestDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false),
+                    RequestDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     Status = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true)
                 },
                 constraints: table =>
@@ -117,7 +117,7 @@ namespace PasteBook.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserAccountId = table.Column<int>(type: "int", nullable: false),
                     FriendAccountId = table.Column<int>(type: "int", nullable: false),
-                    AddedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false)
+                    AddedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
                 {
@@ -139,7 +139,7 @@ namespace PasteBook.Data.Migrations
                     UserAccountId = table.Column<int>(type: "int", nullable: false),
                     Visibility = table.Column<bool>(type: "bit", nullable: false),
                     TextContent = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     AlbumId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -168,7 +168,7 @@ namespace PasteBook.Data.Migrations
                     PostId = table.Column<int>(type: "int", nullable: false),
                     CommentingUserId = table.Column<int>(type: "int", nullable: false),
                     CommentContent = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false)
+                    CreatedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
                 {
@@ -208,7 +208,7 @@ namespace PasteBook.Data.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserAccountId = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                     NotificationType = table.Column<string>(type: "nvarchar(13)", maxLength: 13, nullable: true),
                     Read = table.Column<bool>(type: "bit", nullable: true),
                     FriendRequestId = table.Column<int>(type: "int", nullable: true),

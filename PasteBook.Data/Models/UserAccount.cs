@@ -38,9 +38,7 @@ namespace PasteBook.Data.Models
         public string UserName { get; set; }
         [Required]
         [DataType(DataType.Password)]
-        [Column(TypeName = "nvarchar(50)")]
-        [MinLength(1, ErrorMessage = "Password cannot be blank")]
-        [MaxLength(30, ErrorMessage = "Password cannot not exceed 30 characters")]
+        [Column(TypeName = "char(96)")]
         public string Password { get; set; }
         [Required]
         [Column(TypeName = "datetime2(7)")]

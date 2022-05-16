@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using PasteBook.Data.Exceptions;
 using System;
 using PasteBook.Data.DataTransferObjects;
+using Microsoft.AspNetCore.Identity;
 
 namespace PasteBook.WebApi.Controllers
 {
@@ -64,18 +65,29 @@ namespace PasteBook.WebApi.Controllers
         {
             if (ModelState.IsValid)
             {
+                var passwordHasherOptions = new PasswordHasherOptions();
+                passwordHasherOptions.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV3;
+                passwordHasherOptions.IterationCount = 10_000;
+                var passwordHasher = new PasswordHasher<UserAccount>();
+
                 var newUserAccount = new UserAccount()
                 {
                     FirstName = userAccount.FirstName,
                     LastName = userAccount.LastName,
+                    UserName = "initial create",
                     EmailAddress = userAccount.EmailAddress,
-                    Password = userAccount.Password,
                     Gender = userAccount.Gender,
                     MobileNumber = userAccount.MobileNumber,
                     Active = true
                 };
-
+                var hashedPassword = passwordHasher.HashPassword(newUserAccount, userAccount.Password);
+                newUserAccount.Password = hashedPassword;
                 await UnitOfWork.UserAccountRepository.Insert(newUserAccount);
+                await UnitOfWork.CommitAsync();
+
+                var userName = $"{newUserAccount.FirstName}{newUserAccount.LastName}{newUserAccount.Id}";
+                newUserAccount.UserName = userName.ToLower();
+                UnitOfWork.UserAccountRepository.Update(newUserAccount);
                 await UnitOfWork.CommitAsync();
 
                 return StatusCode(StatusCodes.Status201Created, newUserAccount);
