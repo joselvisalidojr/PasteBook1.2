@@ -10,10 +10,10 @@ namespace PasteBook.Data.Models
 {
     public partial class BlockedAccount : BaseEntity
     {
-        public int BlockerAccounttId { get; set; }
+        public int BlockerAccountId { get; set; }
         public int BlockedAccountId { get; set; }
 
-        [ForeignKey(nameof(BlockerAccounttId))]
+        [ForeignKey(nameof(BlockerAccountId))]
         [InverseProperty("BlockedAccounts")]
         public virtual UserAccount UserAccount { get; set; }
 

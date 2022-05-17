@@ -37,7 +37,12 @@ namespace PasteBook.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int>("UserAccountId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserAccountId");
 
                     b.ToTable("Albums");
                 });
@@ -55,12 +60,12 @@ namespace PasteBook.Data.Migrations
                     b.Property<DateTime>("BlockedDate")
                         .HasColumnType("datetime2(7)");
 
-                    b.Property<int>("BlockerAccounttId")
+                    b.Property<int>("BlockerAccountId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BlockerAccounttId");
+                    b.HasIndex("BlockerAccountId");
 
                     b.ToTable("BlockedAccounts");
                 });
@@ -306,8 +311,7 @@ namespace PasteBook.Data.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("char(96)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -318,11 +322,22 @@ namespace PasteBook.Data.Migrations
                     b.ToTable("UserAccounts");
                 });
 
+            modelBuilder.Entity("PasteBook.Data.Models.Album", b =>
+                {
+                    b.HasOne("PasteBook.Data.Models.UserAccount", "UserAccount")
+                        .WithMany("Albums")
+                        .HasForeignKey("UserAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserAccount");
+                });
+
             modelBuilder.Entity("PasteBook.Data.Models.BlockedAccount", b =>
                 {
                     b.HasOne("PasteBook.Data.Models.UserAccount", "UserAccount")
                         .WithMany("BlockedAccounts")
-                        .HasForeignKey("BlockerAccounttId")
+                        .HasForeignKey("BlockerAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -459,6 +474,8 @@ namespace PasteBook.Data.Migrations
 
             modelBuilder.Entity("PasteBook.Data.Models.UserAccount", b =>
                 {
+                    b.Navigation("Albums");
+
                     b.Navigation("BlockedAccounts");
 
                     b.Navigation("FriendRequests");

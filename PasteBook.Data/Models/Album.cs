@@ -15,6 +15,8 @@ namespace PasteBook.Data.Models
             Images = new HashSet<Image>();
         }
 
+        public int UserAccountId { get; set; }
+
         [Column(TypeName = "nvarchar(50)")]
         [MinLength(1, ErrorMessage = "Title cannot be blank")]
         [MaxLength(50, ErrorMessage = "Title should not exceed 50 characters")] 
@@ -26,5 +28,9 @@ namespace PasteBook.Data.Models
         [Column(TypeName = "datetime")]
         public DateTime CreationDate { get; set; }
         public virtual ICollection<Image> Images { get; set; }
+
+        [ForeignKey(nameof(UserAccountId))]
+        [InverseProperty("Albums")]
+        public virtual UserAccount UserAccount { get; set; }
     }
 }

@@ -17,6 +17,7 @@ namespace PasteBook.Data.Models
             Friends = new HashSet<Friend>();
             Notifications = new HashSet<Notification>();
             Posts = new HashSet<Post>();
+            Albums = new HashSet<Album>();
         }
 
         [Required]
@@ -63,5 +64,7 @@ namespace PasteBook.Data.Models
         public virtual ICollection<Notification> Notifications { get; set; }
         [InverseProperty(nameof(Post.UserAccount))]
         public virtual ICollection<Post> Posts { get; set; }
+        [InverseProperty(nameof(Album.UserAccount))]
+        public virtual ICollection<Album> Albums { get; set; }
     }
 }

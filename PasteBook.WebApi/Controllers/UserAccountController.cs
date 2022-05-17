@@ -70,29 +70,67 @@ namespace PasteBook.WebApi.Controllers
                 passwordHasherOptions.IterationCount = 10_000;
                 var passwordHasher = new PasswordHasher<UserAccount>();
 
-                var newUserAccount = new UserAccount()
+                try
                 {
-                    FirstName = userAccount.FirstName,
-                    LastName = userAccount.LastName,
-                    UserName = "initial create",
-                    EmailAddress = userAccount.EmailAddress,
-                    Gender = userAccount.Gender,
-                    MobileNumber = userAccount.MobileNumber,
-                    Active = true
-                };
-                var hashedPassword = passwordHasher.HashPassword(newUserAccount, userAccount.Password);
-                newUserAccount.Password = hashedPassword;
-                await UnitOfWork.UserAccountRepository.Insert(newUserAccount);
-                await UnitOfWork.CommitAsync();
+                    var newUserAccount = new UserAccount()
+                    {
+                        FirstName = userAccount.FirstName,
+                        LastName = userAccount.LastName,
+                        UserName = "initial create",
+                        EmailAddress = userAccount.EmailAddress,
+                        Birthday = Convert.ToDateTime(userAccount.Birthday + " 00:00:00.0000000"),
+                        Gender = userAccount.Gender,
+                        MobileNumber = userAccount.MobileNumber,
+                        Active = true
+                    };
 
-                var userName = $"{newUserAccount.FirstName}{newUserAccount.LastName}{newUserAccount.Id}";
-                newUserAccount.UserName = userName.ToLower();
-                UnitOfWork.UserAccountRepository.Update(newUserAccount);
-                await UnitOfWork.CommitAsync();
+                    var hashedPassword = passwordHasher.HashPassword(newUserAccount, userAccount.Password);
+                    newUserAccount.Password = hashedPassword;
+                    await UnitOfWork.UserAccountRepository.Insert(newUserAccount);
+                    await UnitOfWork.CommitAsync();
 
-                return StatusCode(StatusCodes.Status201Created, newUserAccount);
+                    var userName = $"{newUserAccount.FirstName}{newUserAccount.LastName}{newUserAccount.Id}";
+                    newUserAccount.UserName = userName.ToLower();
+                    UnitOfWork.UserAccountRepository.Update(newUserAccount);
+
+                    var timelinePhotosAlbum = new Album()
+                    {
+                        UserAccount = newUserAccount,
+                        UserAccountId = newUserAccount.Id,
+                        Title = "Timeline photos",
+                        Description = ""
+                    };
+
+                    var profilePicturesAlbum = new Album()
+                    {
+                        UserAccount = newUserAccount,
+                        UserAccountId = newUserAccount.Id,
+                        Title = "Profile pictures",
+                        Description = ""
+                    };
+
+                    var coverPhotosAlbum = new Album()
+                    {
+                        UserAccount = newUserAccount,
+                        UserAccountId = newUserAccount.Id,
+                        Title = "Cover photos",
+                        Description = ""
+                    };
+
+                    await UnitOfWork.AlbumRepository.Insert(timelinePhotosAlbum);
+                    await UnitOfWork.AlbumRepository.Insert(profilePicturesAlbum);
+                    await UnitOfWork.AlbumRepository.Insert(coverPhotosAlbum);
+                    await UnitOfWork.CommitAsync();
+
+                    // insert request details of FE in DTO here
+                    // return StatusCode(StatusCodes.Status201Created, DTO);
+                    return StatusCode(StatusCodes.Status201Created);
+                }
+                catch
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
             }
-
             return StatusCode(StatusCodes.Status400BadRequest);
         }
 

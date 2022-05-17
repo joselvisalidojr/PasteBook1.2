@@ -25,7 +25,7 @@ namespace PasteBook.Data.DataTransferObjects
         [DataType(DataType.Password)]
         public string Password { get; set; }
         [Required]
-        public DateTime Birthday { get; set; }
+        public string Birthday { get; set; }
         [MinLength(1)]
         [MaxLength(10)]
         public string Gender { get; set; }

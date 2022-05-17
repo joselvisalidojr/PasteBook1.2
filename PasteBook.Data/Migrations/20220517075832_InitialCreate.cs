@@ -8,21 +8,6 @@ namespace PasteBook.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Albums",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(Max)", nullable: true),
-                    CreationDate = table.Column<DateTime>(type: "datetime", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Albums", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "UserAccounts",
                 columns: table => new
                 {
@@ -32,7 +17,7 @@ namespace PasteBook.Data.Migrations
                     LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     EmailAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(50)", nullable: false),
-                    Password = table.Column<string>(type: "char(96)", maxLength: 30, nullable: false),
+                    Password = table.Column<string>(type: "char(96)", nullable: false),
                     Birthday = table.Column<DateTime>(type: "datetime2(7)", nullable: false),
                     Gender = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     MobileNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -45,23 +30,23 @@ namespace PasteBook.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Images",
+                name: "Albums",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AlbumId = table.Column<int>(type: "int", nullable: false),
-                    UploadedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    FilePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Active = table.Column<bool>(type: "bit", nullable: false)
+                    UserAccountId = table.Column<int>(type: "int", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(Max)", nullable: true),
+                    CreationDate = table.Column<DateTime>(type: "datetime", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Images", x => x.Id);
+                    table.PrimaryKey("PK_Albums", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Images_Albums_AlbumId",
-                        column: x => x.AlbumId,
-                        principalTable: "Albums",
+                        name: "FK_Albums_UserAccounts_UserAccountId",
+                        column: x => x.UserAccountId,
+                        principalTable: "UserAccounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -72,7 +57,7 @@ namespace PasteBook.Data.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    BlockerAccounttId = table.Column<int>(type: "int", nullable: false),
+                    BlockerAccountId = table.Column<int>(type: "int", nullable: false),
                     BlockedAccountId = table.Column<int>(type: "int", nullable: false),
                     BlockedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
@@ -80,8 +65,8 @@ namespace PasteBook.Data.Migrations
                 {
                     table.PrimaryKey("PK_BlockedAccounts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BlockedAccounts_UserAccounts_BlockerAccounttId",
-                        column: x => x.BlockerAccounttId,
+                        name: "FK_BlockedAccounts_UserAccounts_BlockerAccountId",
+                        column: x => x.BlockerAccountId,
                         principalTable: "UserAccounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -126,6 +111,28 @@ namespace PasteBook.Data.Migrations
                         name: "FK_Friends_UserAccounts_UserAccountId",
                         column: x => x.UserAccountId,
                         principalTable: "UserAccounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Images",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AlbumId = table.Column<int>(type: "int", nullable: false),
+                    UploadedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    FilePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Active = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Images", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Images_Albums_AlbumId",
+                        column: x => x.AlbumId,
+                        principalTable: "Albums",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -245,9 +252,14 @@ namespace PasteBook.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_BlockedAccounts_BlockerAccounttId",
+                name: "IX_Albums_UserAccountId",
+                table: "Albums",
+                column: "UserAccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BlockedAccounts_BlockerAccountId",
                 table: "BlockedAccounts",
-                column: "BlockerAccounttId");
+                column: "BlockerAccountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Comments_PostId",
