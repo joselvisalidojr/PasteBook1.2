@@ -23,7 +23,7 @@ namespace PasteBook.WebApi.Controllers
         }
 
         [HttpPost("UploadImages")]
-        public async Task<IActionResult> UploadImages([FromQuery] List<PostedImageDTO> imagePaths, int albumId)
+        public async Task<IActionResult> UploadImages([FromBody] List<PostedImageDTO> imagePaths, [FromQuery ]int albumId)
         {
             var fileNames = new List<string>();
             foreach (PostedImageDTO imagePath in imagePaths)
