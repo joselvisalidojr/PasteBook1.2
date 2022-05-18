@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace PasteBook.Data.DataTransferObjects
 {
-    public class CreateAlbumDTO
+    public class AlbumDTO
     {
-        public int UserAccountId { get; set; }
+        public int Id { get; set; }
         public string Title { get; set; }
-        public string? Description { get; set; }
+        public string? CoverPhoto { get; set; }
+        public string Description { get; set; }
+        public DateTime CreatedDate { get; set; }
     }
 }

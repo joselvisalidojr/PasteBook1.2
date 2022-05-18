@@ -98,7 +98,7 @@ namespace PasteBook.WebApi.Controllers
                         UserAccount = newUserAccount,
                         UserAccountId = newUserAccount.Id,
                         Title = "Timeline photos",
-                        Description = ""
+                        Description = null
                     };
 
                     var profilePicturesAlbum = new Album()
@@ -106,7 +106,7 @@ namespace PasteBook.WebApi.Controllers
                         UserAccount = newUserAccount,
                         UserAccountId = newUserAccount.Id,
                         Title = "Profile pictures",
-                        Description = ""
+                        Description = null
                     };
 
                     var coverPhotosAlbum = new Album()
@@ -114,7 +114,7 @@ namespace PasteBook.WebApi.Controllers
                         UserAccount = newUserAccount,
                         UserAccountId = newUserAccount.Id,
                         Title = "Cover photos",
-                        Description = ""
+                        Description = null
                     };
 
                     await UnitOfWork.AlbumRepository.Insert(timelinePhotosAlbum);
@@ -214,6 +214,36 @@ namespace PasteBook.WebApi.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
+        }
+
+        // for testing only
+        [HttpGet("GetAlbums")]
+
+        public async Task<IActionResult> GetAlbums(int userAccountId)
+        {
+            var albumList = await this.UnitOfWork.AlbumRepository.FindAlbumId(userAccountId);
+            var albumListDTO = new List<AlbumDTO>();
+            foreach (var album in albumList)
+            {
+                var albumCoverImage = await this.UnitOfWork.ImageRepository.FindByAlbumCoverPhoto(album.Id);
+                string albumCoverImageData = null;
+                if (albumCoverImage != null)
+                {
+                    var albumCoverImagePath = albumCoverImage.FilePath;
+                    byte[] bytes = System.IO.File.ReadAllBytes(albumCoverImagePath);
+                    albumCoverImageData = Convert.ToBase64String(bytes, 0, bytes.Length);
+                }
+
+                albumListDTO.Add(new AlbumDTO
+                {
+                    Id = album.Id,
+                    Title = album.Title,
+                    CoverPhoto = albumCoverImageData,
+                    Description = album.Description,
+                    CreatedDate = album.CreationDate
+                });
+            }
+            return Ok(albumListDTO);
         }
 
         // for testing only

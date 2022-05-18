@@ -74,6 +74,8 @@ namespace PasteBook.WebApi
 
             app.UseHttpsRedirection();
 
+            app.UseStaticFiles();
+
             app.UseRouting();
 
             app.UseCors();
