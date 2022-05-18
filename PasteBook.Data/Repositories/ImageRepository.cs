@@ -26,7 +26,7 @@ namespace PasteBook.Data.Repositories
         }
         public async Task<Image> FindByAlbumCoverPhoto(int albumId)
         {
-            var image = await this.Context.Images.Where(x => x.AlbumId == albumId).OrderBy(x => x.UploadedDate).FirstOrDefaultAsync();
+            var image = await this.Context.Images.Where(x => x.AlbumId == albumId).OrderByDescending(x => x.UploadedDate).FirstOrDefaultAsync();
             if(image is object)
             {
                 return image;
