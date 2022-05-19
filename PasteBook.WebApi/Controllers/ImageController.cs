@@ -8,12 +8,11 @@ using PasteBook.Data.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace PasteBook.WebApi.Controllers
 {
-    [Route("Images")]
+    [Route("images")]
     [ApiController]
     public class ImageController : ControllerBase
     {
@@ -25,7 +24,7 @@ namespace PasteBook.WebApi.Controllers
             this.UnitOfWork = UnitOfWork;
         }
 
-        [HttpGet("GetImage")]
+        [HttpGet("get-image")]
         public async Task<IActionResult> GetImage(int imageId)
         {
             try
@@ -48,7 +47,7 @@ namespace PasteBook.WebApi.Controllers
             }
         }
 
-        [HttpGet("GetImageByAlbum")]
+        [HttpGet("get-image-by-album")]
         public async Task<IActionResult> GetImagesByAlbum(int albumId)
         {
             var images = new List<ImageDTO>();
@@ -59,41 +58,57 @@ namespace PasteBook.WebApi.Controllers
                 byte[] bytes = System.IO.File.ReadAllBytes(imagePath);
                 images.Add(new ImageDTO
                 {
+                    Id = image.Id,
+                    AlbumId = image.AlbumId,
+                    UploadedDate = image.UploadedDate,
                     Name = Path.GetFileName(imagePath),
                     Data = Convert.ToBase64String(bytes, 0, bytes.Length)
                 });
             }
             return Ok(images);
-
-            //var imageBytes = new List<byte[]>();
-            //var imageList = await this.UnitOfWork.ImageRepository.FindByAlbumId(albumId);
-            //foreach (var image in imageList)
-            //{
-            //    var imagePath = image.FilePath;
-            //    byte[] bytes = System.IO.File.ReadAllBytes(imagePath);
-            //    imageBytes.Add(bytes);
-            //}
-            //return Ok(imageBytes);
-
-            //try
-            //{
-            //    var imageList = await this.UnitOfWork.ImageRepository.FindByAlbumId(albumId);
-            //    var physicalFiles = new List<PhysicalFileResult>();
-            //    foreach(var image in imageList)
-            //    {
-            //        var imagePath = image.FilePath;
-            //        physicalFiles.Add(PhysicalFile(imagePath,"image/jpeg"));
-            //    }
-            //    return Ok(physicalFiles);
-            //}
-            //catch (Exception)
-            //{
-            //    return StatusCode(StatusCodes.Status500InternalServerError);
-            //}
         }
 
-        [HttpPost("UploadImages")]
-        public async Task<IActionResult> UploadImages([FromForm] List<IFormFile> postedImages, [FromQuery ]int albumId)
+        [HttpPost("upload-image/{albumId=0}")]
+        public async Task<IActionResult> UploadImage([FromForm] IFormFile postedImage, [FromRoute] int albumId)
+        {
+            string path = Path.Combine(this.Environment.WebRootPath, "/Uploads");
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            var uploadedImage = new List<string>();
+            string fileName = Path.GetFileName(postedImage.FileName);
+            using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+            {
+                await postedImage.CopyToAsync(stream);
+                uploadedImage.Add(fileName);
+            }
+
+            var image = new Image()
+            {
+                FilePath = Path.Combine(path, fileName),
+                Active = true
+            };
+            try
+            {
+                var isExistingAlbum = await this.UnitOfWork.AlbumRepository.FindByPrimaryKey(albumId);
+                if (isExistingAlbum is not null) image.AlbumId = isExistingAlbum.Id;
+            }
+            catch (EntityNotFoundException)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+            await this.UnitOfWork.ImageRepository.Insert(image);
+            await this.UnitOfWork.CommitAsync();
+            return Ok(uploadedImage);
+        }
+
+        [HttpPost("upload-images/{albumId=0}")]
+        public async Task<IActionResult> UploadImages([FromBody] PostedImageFileDTO postedImageFile, [FromRoute] int albumId)
         {
             string path = Path.Combine(this.Environment.WebRootPath, "Uploads");
             if (!Directory.Exists(path))
@@ -102,12 +117,12 @@ namespace PasteBook.WebApi.Controllers
             }
 
             var uploadedImages = new List<string>();
-            foreach (IFormFile postedImage in postedImages)
+            foreach (IFormFile imageFile in postedImageFile.imageFiles)
             {
-                string fileName = Path.GetFileName(postedImage.FileName);
+                string fileName = Path.GetFileName(imageFile.FileName);
                 using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
                 {
-                    await postedImage.CopyToAsync(stream);
+                    await imageFile.CopyToAsync(stream);
                     uploadedImages.Add(fileName);
                 }
 
@@ -133,21 +148,6 @@ namespace PasteBook.WebApi.Controllers
             }
             await this.UnitOfWork.CommitAsync();
             return Ok(uploadedImages);
-        }
-
-        [HttpPost("CreateAlbum")]
-        public async Task<IActionResult> CreateAlbum([FromBody] CreateAlbumDTO postedAlbum)
-        {
-            var album = new Album()
-            {
-                UserAccountId = postedAlbum.UserAccountId,
-                Title = postedAlbum.Title,
-                Description = postedAlbum.Description
-            };
-
-            await this.UnitOfWork.AlbumRepository.Insert(album);
-            await this.UnitOfWork.CommitAsync();
-            return Ok(album);
         }
     }
 }

@@ -31,7 +31,7 @@ namespace PasteBook.Data.Repositories
 
         public UserAccount CheckUserAccount(string userName, string passWord)
         {
-            UserAccount user = this.Context.UserAccounts.Where(x => x.EmailAddress == userName).FirstOrDefault();
+            UserAccount user = this.Context.UserAccounts.Where(x => (x.EmailAddress == userName) && (x.Active == true)).FirstOrDefault();
             if (user != null)
             {
                 return user;
@@ -50,7 +50,7 @@ namespace PasteBook.Data.Repositories
 
         public UserAccount FindByEmailAddress(string emailAddress)
         {
-            var userAccount = this.Context.UserAccounts.Where(x => x.EmailAddress == emailAddress).FirstOrDefault();
+            var userAccount = this.Context.UserAccounts.Where(x => (x.EmailAddress == emailAddress) && (x.Active == true)).FirstOrDefault();
             if (userAccount is object)
             {
                 return userAccount;

@@ -21,7 +21,7 @@ namespace PasteBook.Data.Repositories
 
         public async Task<IEnumerable<Image>> FindByAlbumId(int albumId)
         {
-            var imageList = await this.Context.Images.Where(x => x.AlbumId == albumId).ToListAsync();
+            var imageList = await this.Context.Images.Where(x => (x.AlbumId == albumId) && (x.Active == true)).ToListAsync();
             return imageList;
         }
         public async Task<Image> FindByAlbumCoverPhoto(int albumId)
