@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PasteBook.WebApi.Controllers
 {
-    [Route("Likes")]
+    [Route("likes")]
     [ApiController]
     public class LikeController : ControllerBase
     {
@@ -19,7 +19,7 @@ namespace PasteBook.WebApi.Controllers
             this.UnitOfWork = unitOfWork;
         }
 
-        [HttpGet]
+        [HttpGet("get-likes")]
         public async Task<IActionResult> GetLikes(int id)
         {
             var likes = await this.UnitOfWork.LikeRepository.FindByPostId(id);

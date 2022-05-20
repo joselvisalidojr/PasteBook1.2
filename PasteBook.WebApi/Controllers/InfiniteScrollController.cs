@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace PasteBook.WebApi.Controllers
 {
+    // to be revised
     [ApiController]
-    [Route("InfiniteScroll")]
+    [Route("infinite-scroll")]
     public class InfiniteScrollController : ControllerBase
     {
         public IUnitOfWork UnitOfWork { get; private set; }
@@ -15,20 +16,20 @@ namespace PasteBook.WebApi.Controllers
             UnitOfWork = unitOfWork;
         }
 
-        [HttpGet("GetUserAccounts")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetUserAccounts([FromQuery] int pageNumber, int itemsPerScroll)
-        {
-            var userAccounts = await UnitOfWork.UserAccountRepository.InfiniteScrollList(pageNumber, itemsPerScroll);
-            return Ok(userAccounts);
-        }
+        //[HttpGet("GetUserAccounts")]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //public async Task<IActionResult> GetUserAccounts([FromQuery] int pageNumber, int itemsPerScroll)
+        //{
+        //    var userAccounts = await UnitOfWork.UserAccountRepository.InfiniteScrollList(pageNumber, itemsPerScroll);
+        //    return Ok(userAccounts);
+        //}
 
-        [HttpGet("GetUserAccountsWithScrollInfo")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetUserAccountsWithScrollInfo([FromQuery] int pageNumber, int itemsPerScroll)
-        {
-            var userAccounts = await UnitOfWork.UserAccountRepository.InfiniteScrollListWithInfo(pageNumber, itemsPerScroll);
-            return Ok(userAccounts);
-        }
+        //[HttpGet("GetUserAccountsWithScrollInfo")]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //public async Task<IActionResult> GetUserAccountsWithScrollInfo([FromQuery] int pageNumber, int itemsPerScroll)
+        //{
+        //    var userAccounts = await UnitOfWork.UserAccountRepository.InfiniteScrollListWithInfo(pageNumber, itemsPerScroll);
+        //    return Ok(userAccounts);
+        //}
     }
 }

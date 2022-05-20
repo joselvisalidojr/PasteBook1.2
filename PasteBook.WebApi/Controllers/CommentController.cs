@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PasteBook.WebApi.Controllers
 {
-    [Route("Comments")]
+    [Route("comments")]
     [ApiController]
     public class CommentController: ControllerBase
     {
@@ -18,7 +18,7 @@ namespace PasteBook.WebApi.Controllers
             this.UnitOfWork = unitOfWork;
         }
 
-        [HttpGet]
+        [HttpGet("get-comments")]
         public async Task<IActionResult> GetComments(int id)
         {
             var comments = await this.UnitOfWork.CommentRepository.FindByPostId(id);

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace PasteBook.WebApi.Controllers
 {
-    [Route("UserAccount")]
+    [Route("login")]
     [ApiController]
     public class LogInController: ControllerBase
     {

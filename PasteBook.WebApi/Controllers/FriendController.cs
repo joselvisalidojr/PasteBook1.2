@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace PasteBook.WebApi.Controllers
 {
-    [Route("Friends")]
+    [Route("friends")]
     [ApiController]
     [Authorize]
     public class FriendController : ControllerBase
@@ -21,7 +21,7 @@ namespace PasteBook.WebApi.Controllers
             this.UnitOfWork = unitOfWork;
         }
 
-        [HttpGet]
+        [HttpGet("get-friends")]
         public async Task<IActionResult> GetFriends(int id)
         {
             var friendListData = await this.UnitOfWork.FriendRepository.FindByUserAccountId(id);
@@ -55,7 +55,7 @@ namespace PasteBook.WebApi.Controllers
             return BadRequest();
         }
 
-        [HttpPost("FriendRequest")]
+        [HttpPost("friend-request")]
         public async Task<IActionResult> FriendRequest([FromBody] FriendRequestDTO FriendRequest)
         {
             var friendRequest = new FriendRequest()
@@ -69,7 +69,7 @@ namespace PasteBook.WebApi.Controllers
             await this.UnitOfWork.CommitAsync();
             return Ok(friendRequest);
         }
-        [HttpDelete("DeclineFriendRequest")]
+        [HttpDelete("decline-friend-request")]
         public async Task<IActionResult> DeclineFriendRequest(int id)
         {
             var friendRequest = await this.UnitOfWork.FriendRequestRepository.Delete(id);
@@ -78,7 +78,7 @@ namespace PasteBook.WebApi.Controllers
         }
 
 
-        [HttpPost("AcceptFriendRequest")]
+        [HttpPost("accept-friend-request")]
         public async Task<IActionResult> AcceptFriendRequest(int id)
         {
             var friendRequest = await this.UnitOfWork.FriendRequestRepository.Delete(id);

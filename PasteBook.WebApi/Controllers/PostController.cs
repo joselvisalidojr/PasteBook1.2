@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PasteBook.WebApi.Controllers
 {
-    [Route("Posts")]
+    [Route("posts")]
     [ApiController]
     public class PostController: ControllerBase
     {
@@ -18,7 +18,7 @@ namespace PasteBook.WebApi.Controllers
             this.UnitOfWork = unitOfWork;
         }
 
-        [HttpGet]
+        [HttpGet("get-posts")]
         public async Task<IActionResult> GetPosts(int id)
         {
             var posts = await this.UnitOfWork.PostRepository.FindAll();

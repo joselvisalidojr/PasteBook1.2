@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace PasteBook.WebApi.Controllers
 {
-    [Route("BlockedAccounts")]
+    [Route("blocked-accounts")]
     [ApiController]
     public class BlockedAccountController : ControllerBase
     {
@@ -19,7 +19,7 @@ namespace PasteBook.WebApi.Controllers
             this.UnitOfWork = unitOfWork;
         }
 
-        [HttpGet]
+        [HttpGet("get-blocked-accounts")]
         public async Task<IActionResult> GetBlockedAccounts(int id)
         {
             var blockedAccounts = await this.UnitOfWork.BlockedAccountRepository.FindByBlockerAccountId(id);
