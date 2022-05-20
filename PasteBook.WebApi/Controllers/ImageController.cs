@@ -25,7 +25,7 @@ namespace PasteBook.WebApi.Controllers
         }
 
         [HttpGet("get-image")]
-        public async Task<IActionResult> GetImage(int imageId)
+        public async Task<IActionResult> GetImage([FromQuery] int imageId)
         {
             try
             {
@@ -33,17 +33,26 @@ namespace PasteBook.WebApi.Controllers
                 if (isExistingImage != null)
                 {
                     var imagePath = isExistingImage.FilePath;
-                    return PhysicalFile(imagePath, "image/jpeg");
+                    byte[] bytes = System.IO.File.ReadAllBytes(imagePath);
+                    var image = new ImageDTO()
+                    {
+                        Id = isExistingImage.Id,
+                        AlbumId = isExistingImage.AlbumId,
+                        UploadedDate = isExistingImage.UploadedDate,
+                        Name = Path.GetFileName(imagePath),
+                        Data = Convert.ToBase64String(bytes, 0, bytes.Length)
+                    };
+                    return Ok(image);
                 }
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
-            catch (EntityNotFoundException)
+            catch (EntityNotFoundException e)
             {
-                return StatusCode(StatusCodes.Status400BadRequest);
+                return StatusCode(StatusCodes.Status404NotFound, e.Message);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError);
+                return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
             }
         }
 
