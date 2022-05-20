@@ -9,6 +9,10 @@ using PasteBook.Data.Exceptions;
 using System;
 using PasteBook.Data.DataTransferObjects;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace PasteBook.WebApi.Controllers
 {
@@ -19,11 +23,13 @@ namespace PasteBook.WebApi.Controllers
 
         private readonly IUserAccountService UserAccountService;
         private readonly IUnitOfWork UnitOfWork;
+        private IConfiguration _config;
 
-        public UserAccountController(IUserAccountService userAccountService, IUnitOfWork unitOfWork)
+        public UserAccountController(IUserAccountService userAccountService, IUnitOfWork unitOfWork, IConfiguration config)
         {
             this.UserAccountService = userAccountService;
             this.UnitOfWork = unitOfWork;
+            this._config = config;
         }
         [HttpGet]
         public IEnumerable<UserAccount> UserAccounts()
@@ -247,9 +253,11 @@ namespace PasteBook.WebApi.Controllers
         }
 
         // for testing only
-        [HttpGet("LoginUserAccount")]
-        public IActionResult LoginUserAccount(string emailAddress, string password)
+        [HttpPost("LoginUserAccount")]
+        public IActionResult LoginUserAccount([FromBody] LogInCredentials logInCredentials)
         {
+            var emailAddress = logInCredentials.email;
+            var password = logInCredentials.password;
             try
             {
                 var existingUserAccount = UnitOfWork.UserAccountRepository.FindByEmailAddress(emailAddress);
@@ -276,7 +284,15 @@ namespace PasteBook.WebApi.Controllers
                 }
                 if (verified == true)
                 {
-                    return Ok(existingUserAccount);
+                    var token = Generate();
+
+                    var logInDetails = new LogInDTO
+                    {
+                        id = existingUserAccount.Id,
+                        email = existingUserAccount.EmailAddress,
+                        token = token
+                    };
+                    return Ok(logInDetails);
                 }
                 if (verified == false)
                 {
@@ -292,6 +308,19 @@ namespace PasteBook.WebApi.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
+        }
+
+        private string Generate()
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(_config["Jwt:Issuer"],
+                _config["Jwt:Audience"],
+                expires: DateTime.Now.AddDays(3),
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

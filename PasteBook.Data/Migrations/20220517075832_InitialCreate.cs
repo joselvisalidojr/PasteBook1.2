@@ -20,6 +20,9 @@ namespace PasteBook.Data.Migrations
                     Password = table.Column<string>(type: "char(96)", nullable: false),
                     Birthday = table.Column<DateTime>(type: "datetime2(7)", nullable: false),
                     Gender = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
+                    AboutMe = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProfileImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CoverImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MobileNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Active = table.Column<bool>(type: "bit", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
@@ -80,8 +83,7 @@ namespace PasteBook.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     RequestReceiverId = table.Column<int>(type: "int", nullable: false),
                     RequestSenderId = table.Column<int>(type: "int", nullable: false),
-                    RequestDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
-                    Status = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true)
+                    RequestDate = table.Column<DateTime>(type: "datetime2(7)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
                 {
