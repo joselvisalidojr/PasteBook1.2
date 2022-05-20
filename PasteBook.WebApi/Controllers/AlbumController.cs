@@ -27,7 +27,8 @@ namespace PasteBook.WebApi.Controllers
             {
                 UserAccountId = postedAlbum.UserAccountId,
                 Title = postedAlbum.Title ??= "",
-                Description = postedAlbum.Description ??= ""
+                Description = postedAlbum.Description ??= "",
+                Active = true
             };
 
             await this.UnitOfWork.AlbumRepository.Insert(album);
@@ -89,8 +90,8 @@ namespace PasteBook.WebApi.Controllers
             return Ok(albumListDTO);
         }
 
-        [HttpPut("delete-album")]
-        public async Task<IActionResult> DeleteAlbum(int albumId)
+        [HttpPut("delete-album/{albumId=0}")]
+        public async Task<IActionResult> DeleteAlbum([FromRoute] int albumId)
         {
             try
             {
