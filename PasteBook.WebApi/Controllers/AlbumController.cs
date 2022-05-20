@@ -96,6 +96,10 @@ namespace PasteBook.WebApi.Controllers
             try
             {
                 var existingAlbum = await UnitOfWork.AlbumRepository.FindByPrimaryKey(albumId);
+                if (existingAlbum.Title == "Timeline photos" || existingAlbum.Title == "Profile pictures" || existingAlbum.Title == "Cover photos")
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden);
+                }
                 UnitOfWork.AlbumRepository.SoftDelete(existingAlbum);
                 await UnitOfWork.CommitAsync();
                 return Ok(existingAlbum);
@@ -116,6 +120,10 @@ namespace PasteBook.WebApi.Controllers
             try
             {
                 var existingAlbum = await UnitOfWork.AlbumRepository.FindByPrimaryKey(albumId);
+                if (existingAlbum.Title == "Timeline photos" || existingAlbum.Title == "Profile pictures" || existingAlbum.Title == "Cover photos")
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden);
+                }
                 existingAlbum.Title = updatedAlbum.Title ??= existingAlbum.Title;
                 existingAlbum.Description = updatedAlbum.Description ??= existingAlbum.Description;
                 UnitOfWork.AlbumRepository.Update(existingAlbum);

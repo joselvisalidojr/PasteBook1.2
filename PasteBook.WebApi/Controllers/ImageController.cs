@@ -77,6 +77,169 @@ namespace PasteBook.WebApi.Controllers
             return Ok(images);
         }
 
+        [HttpPost("upload-profile-image/{userAccountId=0}")]
+        public async Task<IActionResult> UploadProfileImage([FromForm] IFormFile profileImage, [FromRoute] int userAccountId)
+        {
+            if (profileImage == null)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+            try
+            {
+                string path = Path.Combine(this.Environment.WebRootPath, "/Uploads");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                var uploadedImage = new List<string>();
+                string fileName = Path.GetFileName(profileImage.FileName);
+                using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+                {
+                    await profileImage.CopyToAsync(stream);
+                    uploadedImage.Add(fileName);
+                }
+
+                var image = new Image()
+                {
+                    FilePath = Path.Combine(path, fileName),
+                    Active = true
+                };
+
+                var userAccount = await this.UnitOfWork.UserAccountRepository.FindByPrimaryKey(userAccountId);
+                byte[] bytes = System.IO.File.ReadAllBytes(Path.Combine(path, fileName));
+                userAccount.ProfileImagePath = Convert.ToBase64String(bytes, 0, bytes.Length);
+                this.UnitOfWork.UserAccountRepository.Update(userAccount);
+
+                var userAlbumList = await this.UnitOfWork.AlbumRepository.FindAlbumId(userAccountId);
+                foreach( Album album in userAlbumList)
+                {
+                    if(album.Title == "Profile pictures")
+                    {
+                        image.AlbumId = album.Id;
+                    }
+                }
+                
+                await this.UnitOfWork.ImageRepository.Insert(image);
+                await this.UnitOfWork.CommitAsync();
+                return Ok(uploadedImage);
+            }
+            catch (EntityNotFoundException)
+            {
+                return StatusCode(StatusCodes.Status404NotFound);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpPost("upload-profile-cover-image/{userAccountId=0}")]
+        public async Task<IActionResult> UploadProfileCoverImage([FromForm] IFormFile profileCoverImage, [FromRoute] int userAccountId)
+        {
+            if (profileCoverImage == null)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+            try
+            {
+                string path = Path.Combine(this.Environment.WebRootPath, "/Uploads");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                var uploadedCoverImage = new List<string>();
+                string fileName = Path.GetFileName(profileCoverImage.FileName);
+                using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+                {
+                    await profileCoverImage.CopyToAsync(stream);
+                    uploadedCoverImage.Add(fileName);
+                }
+
+                var image = new Image()
+                {
+                    FilePath = Path.Combine(path, fileName),
+                    Active = true
+                };
+
+                var userAccount = await this.UnitOfWork.UserAccountRepository.FindByPrimaryKey(userAccountId);
+                byte[] bytes = System.IO.File.ReadAllBytes(Path.Combine(path, fileName));
+                userAccount.ProfileImagePath = Convert.ToBase64String(bytes, 0, bytes.Length);
+                this.UnitOfWork.UserAccountRepository.Update(userAccount);
+
+                var userAlbumList = await this.UnitOfWork.AlbumRepository.FindAlbumId(userAccountId);
+                foreach (Album album in userAlbumList)
+                {
+                    if (album.Title == "Cover photos")
+                    {
+                        image.AlbumId = album.Id;
+                    }
+                }
+
+                await this.UnitOfWork.ImageRepository.Insert(image);
+                await this.UnitOfWork.CommitAsync();
+                return Ok(uploadedCoverImage);
+            }
+            catch (EntityNotFoundException)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpPost("upload-timeline-image/{userAccountId=0}")]
+        public async Task<IActionResult> UploadTimelineImage([FromForm] IFormFile timelineImage, [FromRoute] int userAccountId)
+        {
+            if (timelineImage == null)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+            try
+            {
+                string path = Path.Combine(this.Environment.WebRootPath, "/Uploads");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                var uploadedTimelineImage = new List<string>();
+                string fileName = Path.GetFileName(timelineImage.FileName);
+                using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+                {
+                    await timelineImage.CopyToAsync(stream);
+                    uploadedTimelineImage.Add(fileName);
+                }
+
+                var image = new Image()
+                {
+                    FilePath = Path.Combine(path, fileName),
+                    Active = true
+                };
+
+                var userAlbumList = await this.UnitOfWork.AlbumRepository.FindAlbumId(userAccountId);
+                foreach (Album album in userAlbumList)
+                {
+                    if (album.Title == "Timeline photos")
+                    {
+                        image.AlbumId = album.Id;
+                    }
+                }
+
+                await this.UnitOfWork.ImageRepository.Insert(image);
+                await this.UnitOfWork.CommitAsync();
+                return Ok(uploadedTimelineImage);
+            }
+            catch (EntityNotFoundException)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
+
         [HttpPost("upload-image/{albumId=0}")]
         public async Task<IActionResult> UploadImage([FromForm] IFormFile postedImage, [FromRoute] int albumId)
         {
@@ -86,6 +249,11 @@ namespace PasteBook.WebApi.Controllers
             }
             try
             {
+                var existingAlbum = await this.UnitOfWork.AlbumRepository.FindByPrimaryKey(albumId);
+                if (existingAlbum.Title == "Timeline photos" || existingAlbum.Title == "Profile pictures" || existingAlbum.Title == "Cover photos")
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden);
+                }
                 string path = Path.Combine(this.Environment.WebRootPath, "/Uploads");
                 if (!Directory.Exists(path))
                 {
@@ -105,8 +273,8 @@ namespace PasteBook.WebApi.Controllers
                     Active = true
                 };
 
-                var isExistingAlbum = await this.UnitOfWork.AlbumRepository.FindByPrimaryKey(albumId);
-                if (isExistingAlbum is not null) image.AlbumId = isExistingAlbum.Id;
+                
+                if (existingAlbum is not null) image.AlbumId = existingAlbum.Id;
 
                 await this.UnitOfWork.ImageRepository.Insert(image);
                 await this.UnitOfWork.CommitAsync();

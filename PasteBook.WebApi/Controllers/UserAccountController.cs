@@ -42,12 +42,26 @@ namespace PasteBook.WebApi.Controllers
         }
 
         [HttpGet("get-user-account")]
-        public async Task<IActionResult> GetUserAccount(int id)
+        public async Task<IActionResult> GetUserAccount(int userAccountId)
         {
             try
             {
-                var userAccount = await UnitOfWork.UserAccountRepository.FindByPrimaryKey(id);
-                return Ok(userAccount);
+                var existingUserAccount = await UnitOfWork.UserAccountRepository.FindByPrimaryKey(userAccountId);
+                var existingUserAccountDTO = new UserAccountDTO()
+                {
+                    id = existingUserAccount.Id,
+                    firstName = existingUserAccount.FirstName,
+                    lastName = existingUserAccount.LastName,
+                    userName = existingUserAccount.UserName,
+                    emailAddress = existingUserAccount.EmailAddress,
+                    birthday = existingUserAccount.Birthday,
+                    gender = existingUserAccount.Gender ??= "",
+                    mobileNumber = existingUserAccount.MobileNumber ??= "",
+                    createdDate = existingUserAccount.CreatedDate,
+                    profileImagePath = existingUserAccount.ProfileImagePath,
+                    coverImagePath = existingUserAccount.CoverImagePath
+                };
+                return Ok(existingUserAccountDTO);
             }
             catch (EntityNotFoundException)
             {
