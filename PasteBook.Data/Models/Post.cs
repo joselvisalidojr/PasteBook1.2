@@ -18,7 +18,7 @@ namespace PasteBook.Data.Models
         }
 
         public int UserAccountId { get; set; }
-        public bool Visibility { get; set; }
+        public string Visibility { get; set; }
         public string TextContent { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         [Column(TypeName = "datetime2(7)")]

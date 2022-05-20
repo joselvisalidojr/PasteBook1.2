@@ -19,10 +19,7 @@ namespace PasteBook.Data.Models
         public int RequestSenderId { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         [Column(TypeName = "datetime2(7)")]
-        public DateTime RequestDate { get; set; }
-        [Column(TypeName = "nvarchar(10)")]
-        [MaxLength(10)]
-        public string Status { get; set; }
+        public DateTime? RequestDate { get; set; }
 
         [ForeignKey(nameof(RequestReceiverId))]
         [InverseProperty(nameof(UserAccount.FriendRequests))]

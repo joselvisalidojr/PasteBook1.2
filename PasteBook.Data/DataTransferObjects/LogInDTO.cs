@@ -8,7 +8,14 @@ namespace PasteBook.Data.DataTransferObjects
 {
     public partial class LogInDTO
     {
-        public string UserName { get; set; }
-        public string PassWord { get; set; }
+        public int id { get; set; }
+        public string email { get; set; }
+        public string token { get; set; }
+    }
+
+    public partial class LogInCredentials
+    {
+        public string email { get; set; }
+        public string password { get; set; }
     }
 }

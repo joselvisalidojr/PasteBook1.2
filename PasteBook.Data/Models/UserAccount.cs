@@ -48,6 +48,9 @@ namespace PasteBook.Data.Models
         [MinLength(1)]
         [MaxLength(10)]
         public string Gender { get; set; }
+        public string? AboutMe { get; set; }
+        public string? ProfileImagePath { get; set; }
+        public string? CoverImagePath { get; set; }
         public string? MobileNumber { get; set; }
         public bool Active { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
