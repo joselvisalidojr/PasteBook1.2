@@ -18,7 +18,7 @@ namespace PasteBook.Data
         //public PasteBookDbContext(DbContextOptions<PasteBookDbContext> options) : base(options)
         //{
         //}
-        public PasteBookDbContext() : this("Server=GMMBQG3;Database=PasteBookDb;User Id=sa;Password=p@ssw0rd")
+        public PasteBookDbContext() : this("Server=CLMBQG3;Database=PasteBookDb;User Id=sa;Password=Idunnowest2308")
         {
 
         }
@@ -43,7 +43,7 @@ namespace PasteBook.Data
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=GMMBQG3;Database=PasteBookDb;User Id=sa;Password=p@ssw0rd");
+                optionsBuilder.UseSqlServer("Server=CLMBQG3;Database=PasteBookDb;User Id=sa;Password=Idunnowest2308");
             }
         }
     }

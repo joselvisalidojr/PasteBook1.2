@@ -10,8 +10,8 @@ using PasteBook.Data;
 namespace PasteBook.Data.Migrations
 {
     [DbContext(typeof(PasteBookDbContext))]
-    [Migration("20220519181318_AddActiveToAlbumModel")]
-    partial class AddActiveToAlbumModel
+    [Migration("20220520082831_UserAccountDataSeeding")]
+    partial class UserAccountDataSeeding
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -133,7 +133,7 @@ namespace PasteBook.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("RequestDate")
+                    b.Property<DateTime?>("RequestDate")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("datetime2(7)");
 
@@ -142,10 +142,6 @@ namespace PasteBook.Data.Migrations
 
                     b.Property<int>("RequestSenderId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
 
                     b.HasKey("Id");
 
@@ -264,8 +260,8 @@ namespace PasteBook.Data.Migrations
                     b.Property<int>("UserAccountId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Visibility")
-                        .HasColumnType("bit");
+                    b.Property<string>("Visibility")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -283,11 +279,17 @@ namespace PasteBook.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("AboutMe")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("Active")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("Birthday")
                         .HasColumnType("datetime2(7)");
+
+                    b.Property<string>("CoverImagePath")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedDate")
                         .ValueGeneratedOnAddOrUpdate()
@@ -317,6 +319,9 @@ namespace PasteBook.Data.Migrations
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("char(96)");
+
+                    b.Property<string>("ProfileImagePath")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserName")
                         .IsRequired()

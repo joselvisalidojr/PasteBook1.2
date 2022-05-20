@@ -24,4 +24,8 @@
     <ProjectReference Include="..\PasteBook.Data\PasteBook.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Uploads\" />
+  </ItemGroup>
+
 </Project>

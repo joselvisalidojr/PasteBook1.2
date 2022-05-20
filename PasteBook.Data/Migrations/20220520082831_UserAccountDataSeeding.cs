@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace PasteBook.Data.Migrations
 {
-    public partial class UserAccountsDataSeeding : Migration
+    public partial class UserAccountDataSeeding : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
