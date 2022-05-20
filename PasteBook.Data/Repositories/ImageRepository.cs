@@ -12,6 +12,7 @@ namespace PasteBook.Data.Repositories
     {
         Task<IEnumerable<Image>> FindByAlbumId(int albumId);
         Task<Image> FindByAlbumCoverPhoto(int albumId);
+        Image SoftDelete(Image image);
     }
     public class ImageRepository : GenericRepository<Image>, IImageRepository
     {
@@ -35,6 +36,14 @@ namespace PasteBook.Data.Repositories
             {
                 return null;
             }
+        }
+
+        public Image SoftDelete(Image image)
+        {
+            image.Active = false;
+            this.Context.Attach(image);
+            this.Context.Entry<Image>(image).State = EntityState.Modified;
+            return image;
         }
     }
 }
