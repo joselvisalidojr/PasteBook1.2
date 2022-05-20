@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace PasteBook.Data.DataTransferObjects
 {
-    public class PostedImageDTO
+    public class EditAlbumDTO
     {
-        public string FileName { get; set; }
-        public string FilePath { get; set; }
+        public string? Title { get; set; }
+        public string? Description { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using PasteBook.Data.Models;
 using PasteBook.WebApi.Services;
 using System.Collections.Generic;
@@ -16,36 +16,32 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace PasteBook.WebApi.Controllers
 {
-    [Route("UserAccount")]
+    [Route("user-accounts")]
     [ApiController]
     public class UserAccountController : ControllerBase
     {
-
-        private readonly IUserAccountService UserAccountService;
         private readonly IUnitOfWork UnitOfWork;
         private IConfiguration _config;
 
-        public UserAccountController(IUserAccountService userAccountService, IUnitOfWork unitOfWork, IConfiguration config)
+        public UserAccountController(IUnitOfWork unitOfWork, IConfiguration config)
         {
-            this.UserAccountService = userAccountService;
             this.UnitOfWork = unitOfWork;
             this._config = config;
         }
         [HttpGet]
         public IEnumerable<UserAccount> UserAccounts()
         {
-            //return UserAccountService.GetAllUser();
             return UnitOfWork.UserAccountRepository.Context.UserAccounts;
         }
 
-        [HttpGet("GetUserAccounts")]
+        [HttpGet("get-user-accounts")]
         public async Task<IActionResult> GetUserAccounts()
         {
             var userAccounts = await UnitOfWork.UserAccountRepository.FindAll();
             return Ok(userAccounts);
         }
 
-        [HttpGet("GetUserAccount")]
+        [HttpGet("get-user-account")]
         public async Task<IActionResult> GetUserAccount(int id)
         {
             try
@@ -66,8 +62,8 @@ namespace PasteBook.WebApi.Controllers
         // must add email verification in this method
         // front end must check password match with confirm password before calling this API
         // email address must be unique (must add email address as unique constraint in UserAccount entity)
-        [HttpPost("PostUserAccount")]
-        public async Task<IActionResult> PostUserAccount([FromForm] CreateUserAccountDTO userAccount)
+        [HttpPost("create-user-account")]
+        public async Task<IActionResult> CreateUserAccount([FromForm] CreateUserAccountDTO userAccount)
         {
             if (ModelState.IsValid)
             {
@@ -104,7 +100,7 @@ namespace PasteBook.WebApi.Controllers
                         UserAccount = newUserAccount,
                         UserAccountId = newUserAccount.Id,
                         Title = "Timeline photos",
-                        Description = null
+                        Description = ""
                     };
 
                     var profilePicturesAlbum = new Album()
@@ -112,7 +108,7 @@ namespace PasteBook.WebApi.Controllers
                         UserAccount = newUserAccount,
                         UserAccountId = newUserAccount.Id,
                         Title = "Profile pictures",
-                        Description = null
+                        Description = ""
                     };
 
                     var coverPhotosAlbum = new Album()
@@ -120,7 +116,7 @@ namespace PasteBook.WebApi.Controllers
                         UserAccount = newUserAccount,
                         UserAccountId = newUserAccount.Id,
                         Title = "Cover photos",
-                        Description = null
+                        Description = ""
                     };
 
                     await UnitOfWork.AlbumRepository.Insert(timelinePhotosAlbum);
@@ -128,8 +124,6 @@ namespace PasteBook.WebApi.Controllers
                     await UnitOfWork.AlbumRepository.Insert(coverPhotosAlbum);
                     await UnitOfWork.CommitAsync();
 
-                    // insert request details of FE in DTO here
-                    // return StatusCode(StatusCodes.Status201Created, DTO);
                     return StatusCode(StatusCodes.Status201Created);
                 }
                 catch
@@ -143,7 +137,7 @@ namespace PasteBook.WebApi.Controllers
         // if user updates email address, check new email address for duplicate within the database
         // must validate new email address with email verification
         // might be better to move change password to another method call
-        [HttpPut("UpdateUserAccount")]
+        [HttpPut("update-user-account")]
         public async Task<IActionResult> UpdateUserAccount(int id, [FromForm] UpdateUserAccountDTO userAccount)
         {
             try
@@ -152,30 +146,12 @@ namespace PasteBook.WebApi.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    if (userAccount.FirstName != null)
-                    {
-                        existingUserAccount.FirstName = userAccount.FirstName;
-                    }
-                    if (userAccount.LastName != null)
-                    {
-                        existingUserAccount.LastName = userAccount.LastName;
-                    }
-                    if (userAccount.EmailAddress != null)
-                    {
-                        existingUserAccount.EmailAddress = userAccount.EmailAddress;
-                    }
-                    if (userAccount.Password != null)
-                    {
-                        existingUserAccount.Password = userAccount.Password;
-                    }
-                    if (userAccount.Gender != null)
-                    {
-                        existingUserAccount.Gender = userAccount.Gender;
-                    }
-                    if (userAccount.MobileNumber != null)
-                    {
-                        existingUserAccount.MobileNumber = userAccount.MobileNumber;
-                    }
+                    existingUserAccount.FirstName = userAccount.FirstName ??= existingUserAccount.FirstName;
+                    existingUserAccount.LastName = userAccount.LastName ??= existingUserAccount.LastName;
+                    existingUserAccount.EmailAddress = userAccount.EmailAddress ??= existingUserAccount.EmailAddress;
+                    existingUserAccount.Password = userAccount.Password ??= existingUserAccount.Password;
+                    existingUserAccount.Gender = userAccount.Gender ??= existingUserAccount.Gender;
+                    existingUserAccount.MobileNumber = userAccount.MobileNumber ??= existingUserAccount.MobileNumber;
 
                     UnitOfWork.UserAccountRepository.Update(existingUserAccount);
                     await UnitOfWork.CommitAsync();
@@ -198,19 +174,43 @@ namespace PasteBook.WebApi.Controllers
             }
         }
 
-        [HttpPut("DeactivateUserAccount")]
+        [HttpPut("deactivate-user-account")]
         public async Task<IActionResult> DeactivateUserAccount(int id, string password)
         {
             try
             {
-                var userAccount = await UnitOfWork.UserAccountRepository.FindByPrimaryKey(id);
+                var existingUserAccount = await UnitOfWork.UserAccountRepository.FindByPrimaryKey(id);
 
-                // do verification with password against hashed password in database
-                // if password != hashed password { return BadRequest() }
+                var passwordHasherOptions = new PasswordHasherOptions();
+                passwordHasherOptions.CompatibilityMode = PasswordHasherCompatibilityMode.IdentityV3;
+                passwordHasherOptions.IterationCount = 10_000;
+                var passwordHasher = new PasswordHasher<UserAccount>();
 
-                UnitOfWork.UserAccountRepository.SoftDelete(userAccount);
-                await UnitOfWork.CommitAsync();
-                return Ok(userAccount);
+                bool verified = false;
+                var verificationResult = passwordHasher.VerifyHashedPassword(existingUserAccount, existingUserAccount.Password, password);
+
+                if (verificationResult == PasswordVerificationResult.Failed)
+                {
+                    verified = false;
+                }
+                if (verificationResult == PasswordVerificationResult.Success)
+                {
+                    verified = true;
+                }
+                if (verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
+                {
+                    verified = true;
+                }
+                if (verified == false)
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest);
+                }
+                if (verified == true)
+                {
+                    UnitOfWork.UserAccountRepository.SoftDelete(existingUserAccount);
+                    await UnitOfWork.CommitAsync();
+                }
+                return Ok(existingUserAccount);
             }
             catch (EntityNotFoundException)
             {
@@ -222,38 +222,7 @@ namespace PasteBook.WebApi.Controllers
             }
         }
 
-        // for testing only
-        [HttpGet("GetAlbums")]
-
-        public async Task<IActionResult> GetAlbums(int userAccountId)
-        {
-            var albumList = await this.UnitOfWork.AlbumRepository.FindAlbumId(userAccountId);
-            var albumListDTO = new List<AlbumDTO>();
-            foreach (var album in albumList)
-            {
-                var albumCoverImage = await this.UnitOfWork.ImageRepository.FindByAlbumCoverPhoto(album.Id);
-                string albumCoverImageData = null;
-                if (albumCoverImage != null)
-                {
-                    var albumCoverImagePath = albumCoverImage.FilePath;
-                    byte[] bytes = System.IO.File.ReadAllBytes(albumCoverImagePath);
-                    albumCoverImageData = Convert.ToBase64String(bytes, 0, bytes.Length);
-                }
-
-                albumListDTO.Add(new AlbumDTO
-                {
-                    Id = album.Id,
-                    Title = album.Title,
-                    CoverPhoto = albumCoverImageData,
-                    Description = album.Description,
-                    CreatedDate = album.CreationDate
-                });
-            }
-            return Ok(albumListDTO);
-        }
-
-        // for testing only
-        [HttpPost("LoginUserAccount")]
+        [HttpPost("login-user-account")]
         public IActionResult LoginUserAccount([FromBody] LogInCredentials logInCredentials)
         {
             var emailAddress = logInCredentials.email;

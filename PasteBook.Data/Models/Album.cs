@@ -27,6 +27,7 @@ namespace PasteBook.Data.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         [Column(TypeName = "datetime")]
         public DateTime CreationDate { get; set; }
+        public Boolean Active { get; set; }
         public virtual ICollection<Image> Images { get; set; }
 
         [ForeignKey(nameof(UserAccountId))]
