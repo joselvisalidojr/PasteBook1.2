@@ -155,25 +155,5 @@ namespace PasteBook.WebApi.Controllers
             await this.UnitOfWork.CommitAsync();
             return Ok(uploadedImages);
         }
-
-        [HttpPut("delete-image/{imageId=0}")]
-        public async Task<IActionResult> DeleteAlbum([FromRoute] int imageId)
-        {
-            try
-            {
-                var existingImage = await UnitOfWork.ImageRepository.FindByPrimaryKey(imageId);
-                UnitOfWork.ImageRepository.SoftDelete(existingImage);
-                await UnitOfWork.CommitAsync();
-                return Ok(existingImage);
-            }
-            catch (EntityNotFoundException)
-            {
-                return StatusCode(StatusCodes.Status404NotFound);
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
-        }
     }
 }
