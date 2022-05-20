@@ -21,23 +21,23 @@ namespace PasteBook.WebApi.Controllers
             this.UnitOfWork = unitOfWork;
         }
 
-        [HttpPost("LogIn")]
-        public async Task<IActionResult> LogIn([FromForm] LogInDTO userAccount)
-        {
-            if (ModelState.IsValid)
-            {
-                var user = UnitOfWork.UserAccountRepository.CheckUserAccount(userAccount.UserName, userAccount.PassWord);
-                if (user != null)
-                {
-                    return StatusCode(StatusCodes.Status200OK, user);
-                }
-                else
-                {
-                    return StatusCode(StatusCodes.Status403Forbidden);
-                }
-            }
+        //[HttpPost("LogIn")]
+        //public async Task<IActionResult> LogIn([FromBody] LogInDTO userAccount)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        var user = UnitOfWork.UserAccountRepository.CheckUserAccount(userAccount.email, userAccount.password);
+        //        if (user != null)
+        //        {
+        //            return StatusCode(StatusCodes.Status200OK, user);
+        //        }
+        //        else
+        //        {
+        //            return StatusCode(StatusCodes.Status403Forbidden);
+        //        }
+        //    }
 
-            return StatusCode(StatusCodes.Status400BadRequest);
-        }
+        //    return StatusCode(StatusCodes.Status400BadRequest);
+        //}
     }
 }
