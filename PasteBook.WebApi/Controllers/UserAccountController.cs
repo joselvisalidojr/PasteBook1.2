@@ -59,9 +59,6 @@ namespace PasteBook.WebApi.Controllers
             }
         }
 
-        // must add email verification in this method
-        // front end must check password match with confirm password before calling this API
-        // email address must be unique (must add email address as unique constraint in UserAccount entity)
         [HttpPost("create-user-account")]
         public async Task<IActionResult> CreateUserAccount([FromForm] CreateUserAccountDTO userAccount)
         {
@@ -100,7 +97,8 @@ namespace PasteBook.WebApi.Controllers
                         UserAccount = newUserAccount,
                         UserAccountId = newUserAccount.Id,
                         Title = "Timeline photos",
-                        Description = ""
+                        Description = "",
+                        Active = true
                     };
 
                     var profilePicturesAlbum = new Album()
@@ -108,7 +106,8 @@ namespace PasteBook.WebApi.Controllers
                         UserAccount = newUserAccount,
                         UserAccountId = newUserAccount.Id,
                         Title = "Profile pictures",
-                        Description = ""
+                        Description = "",
+                        Active = true
                     };
 
                     var coverPhotosAlbum = new Album()
@@ -116,7 +115,8 @@ namespace PasteBook.WebApi.Controllers
                         UserAccount = newUserAccount,
                         UserAccountId = newUserAccount.Id,
                         Title = "Cover photos",
-                        Description = ""
+                        Description = "",
+                        Active = true
                     };
 
                     await UnitOfWork.AlbumRepository.Insert(timelinePhotosAlbum);
@@ -124,7 +124,7 @@ namespace PasteBook.WebApi.Controllers
                     await UnitOfWork.AlbumRepository.Insert(coverPhotosAlbum);
                     await UnitOfWork.CommitAsync();
 
-                    return StatusCode(StatusCodes.Status201Created);
+                    return StatusCode(StatusCodes.Status201Created, true);
                 }
                 catch
                 {
