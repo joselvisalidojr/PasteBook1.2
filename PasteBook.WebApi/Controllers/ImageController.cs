@@ -71,28 +71,37 @@ namespace PasteBook.WebApi.Controllers
         [HttpPost("upload-image/{albumId=0}")]
         public async Task<IActionResult> UploadImage([FromForm] IFormFile postedImage, [FromRoute] int albumId)
         {
-            string path = Path.Combine(this.Environment.WebRootPath, "/Uploads");
-            if (!Directory.Exists(path))
+            if(postedImage == null)
             {
-                Directory.CreateDirectory(path);
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
-            var uploadedImage = new List<string>();
-            string fileName = Path.GetFileName(postedImage.FileName);
-            using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
-            {
-                await postedImage.CopyToAsync(stream);
-                uploadedImage.Add(fileName);
-            }
-
-            var image = new Image()
-            {
-                FilePath = Path.Combine(path, fileName),
-                Active = true
-            };
             try
             {
+                string path = Path.Combine(this.Environment.WebRootPath, "/Uploads");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                var uploadedImage = new List<string>();
+                string fileName = Path.GetFileName(postedImage.FileName);
+                using (FileStream stream = new FileStream(Path.Combine(path, fileName), FileMode.Create))
+                {
+                    await postedImage.CopyToAsync(stream);
+                    uploadedImage.Add(fileName);
+                }
+
+                var image = new Image()
+                {
+                    FilePath = Path.Combine(path, fileName),
+                    Active = true
+                };
+
                 var isExistingAlbum = await this.UnitOfWork.AlbumRepository.FindByPrimaryKey(albumId);
                 if (isExistingAlbum is not null) image.AlbumId = isExistingAlbum.Id;
+
+                await this.UnitOfWork.ImageRepository.Insert(image);
+                await this.UnitOfWork.CommitAsync();
+                return Ok(uploadedImage);
             }
             catch (EntityNotFoundException)
             {
@@ -102,9 +111,6 @@ namespace PasteBook.WebApi.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
-            await this.UnitOfWork.ImageRepository.Insert(image);
-            await this.UnitOfWork.CommitAsync();
-            return Ok(uploadedImage);
         }
 
         [HttpPost("upload-images/{albumId=0}")]

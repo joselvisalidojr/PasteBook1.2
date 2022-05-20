@@ -109,5 +109,31 @@ namespace PasteBook.WebApi.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
+
+        [HttpPut("edit-album/{albumId=0}")]
+        public async Task<IActionResult> EditAlbum([FromBody] EditAlbumDTO updatedAlbum, [FromRoute] int albumId)
+        {
+            try
+            {
+                var existingAlbum = await UnitOfWork.AlbumRepository.FindByPrimaryKey(albumId);
+                existingAlbum.Title = updatedAlbum.Title ??= existingAlbum.Title;
+                existingAlbum.Description = updatedAlbum.Description ??= existingAlbum.Description;
+                UnitOfWork.AlbumRepository.Update(existingAlbum);
+                await UnitOfWork.CommitAsync();
+                return Ok(existingAlbum);
+            }
+            catch (EntityNotFoundException)
+            {
+                return StatusCode(StatusCodes.Status404NotFound);
+            }
+            catch (EntityDataException)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+        }
     }
 }
