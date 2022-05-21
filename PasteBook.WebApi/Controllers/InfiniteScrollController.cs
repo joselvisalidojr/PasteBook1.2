@@ -16,6 +16,14 @@ namespace PasteBook.WebApi.Controllers
             UnitOfWork = unitOfWork;
         }
 
+        //newsfeed
+        [HttpGet]
+        public async Task<IActionResult> GetNewsfeedPost([FromQuery] int pageNumber, int itemsPerScroll)
+        {
+            var posts = await this.UnitOfWork.PostRepository.InfiniteScrollList(pageNumber, itemsPerScroll);
+            return Ok(posts);
+        }
+
         //[HttpGet("GetUserAccounts")]
         //[ProducesResponseType(StatusCodes.Status200OK)]
         //public async Task<IActionResult> GetUserAccounts([FromQuery] int pageNumber, int itemsPerScroll)
